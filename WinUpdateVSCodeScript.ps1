@@ -2,22 +2,6 @@
 Install-Module PSWindowsUpdate
 #[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
  
-### Runs Windows and Microsoft Update and logs the result ###
-$logFile = "C:\PSWindowsUpdate\Logs\$(Get-Date -Format 'yyyy-MM-dd_HHmmss').log"
-"Script started at $(Get-Date)" | Out-File $logFile -Force
-Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot *>&1 | Out-File $logFile -Append
-"Script finished successfully at $(Get-Date)" | Out-File $logFile -Append
- 
-### Creates the scheduled task ###
-$Action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoProfile -ExecutionPolicy Bypass -File "C:\PSWindowsUpdate\Script\WindowsUpdate.ps1"'
-#$Trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Sunday -WeeksInterval 4 -At 03:00AM
-$Trigger = New-ScheduledTaskTrigger -MonthlyDOW -WeeksInterval 1 -DaysOfWeek Sunday -At 09:00AM
-Register-ScheduledTask -TaskName "My_PSWindowsUpdate" -Action $Action -Trigger $Trigger -User "SYSTEM" -RunLevel Highest
-
-
-#schtasks.exe /Create /TN "MonthlyFirstSundayTask" `
-#/TR "powershell.exe -ExecutionPolicy Bypass -File 'C:\PSWindowsUpdate\Script\WindowsUpdate.ps1'" `
-#/SC ONCE /ST 15:30 /F
 
 schtasks /create /tn "Monthly_Windows_Update_Check" `
     /tr "powershell.exe -ExecutionPolicy Bypass -File 'C:\PSWindowsUpdate\Script\WindowsUpdate.ps1'" `
